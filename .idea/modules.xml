@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/TelegramNotif/TelegramNotif.iml" filepath="$PROJECT_DIR$/TelegramNotif/TelegramNotif.iml" />
+      <module fileurl="file://$PROJECT_DIR$/WNotif/WNotif.iml" filepath="$PROJECT_DIR$/WNotif/WNotif.iml" />
+      <module fileurl="file://$PROJECT_DIR$/WeatherNotif.iml" filepath="$PROJECT_DIR$/WeatherNotif.iml" />
+    </modules>
+  </component>
+</project>
