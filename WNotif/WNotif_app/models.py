@@ -5,7 +5,7 @@ class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nome = db.Column(db.String(80))
-    chat_id = db.Column(db.String(10),unique=True, nullable=False)
+    chat_id = db.Column(db.String(10),unique=True, nullable=False) #da togliere
 
 #class Costraints(db.Model):
     #__tablename__ = 'constraints'

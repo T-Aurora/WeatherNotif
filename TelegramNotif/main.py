@@ -33,7 +33,7 @@ def main():
     #application.run_polling()
     job_queue = application.job_queue
     # Aggiungi un job periodico per eseguire il consumatore Kafka
-    job_queue.run_repeating(k_consumer_job, 30)
+    job_queue.run_repeating(k_consumer_job, 5)
     # Avvia l'applicazione Telegram
     application.run_polling()
 

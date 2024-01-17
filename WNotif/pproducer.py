@@ -20,8 +20,8 @@ class ProducerW:
         self.p = Producer(**self.conf)
         self.topic_name = "WAlerts"
         self.topic_config = {
-        'num_partitions': 3,  # Number of partitions
-        'replication_factor': 1  # Replication factor (set according to your cluster config)
+       # 'num_partitions': 3,  # Number of partitions
+       # 'replication_factor': 1  # Replication factor (set according to your cluster config)
         }
         self.topic = NewTopic(self.topic_name, **self.topic_config)
         self.admin_client = AdminClient({'bootstrap.servers': self.broker})
@@ -48,14 +48,15 @@ class ProducerW:
         # p.produce(topic, key=record_key, value=record_value, callback=delivery_callback)
     def produce_weather_message(self,app):
         with app.app_context():
+
             while True:
                 #region
                 #WeatherCall
                 try:
-                    print("Ti entro nel try del producer!")
-                    all_sub = models.Subscription.query.all()  #da gestire ritorno vuoto
+                    print("entro nel try del producer")
+                    all_sub = models.Subscription.query.all()
                     if all_sub:
-                        print("Ti entro nel if all_sub del producer!")
+                        print("In all_aub!")
                     #for city in x['ciry]
                         for sub in all_sub:
                                 cond = False
@@ -64,7 +65,7 @@ class ProducerW:
                                 sub_weather_data=WeatherCall(sub_city)
                                 print("Sub for weather_d", sub_weather_data)
                                 chat_id = models.User.query.join(models.Subscription).where(sub.user_id == models.User.id).first()
-                                print(chat_id.chat_id)
+                                print("Chat_id: ",chat_id.chat_id)
                                 msg_data={
                                     'city':sub_city,
                                     'chat_id': chat_id.chat_id
@@ -89,12 +90,12 @@ class ProducerW:
                                     print(f"Condition 3: {sub.t_min and sub.t_min >= sub_weather_data['main']['temp_min']}")
                                 if cond:
                                     record_value = json.dumps(msg_data)
+                                    print("Stampo record_value", record_value)
                                     # Pubb il messaggio sul topic
                                     topic = 'WAlerts'
-                                    self.p.produce(topic ,key=chat_id.chat_id, value=record_value, callback=self.delivery_callback)
+                                    self.p.produce(topic, key=chat_id.chat_id, value=record_value, callback=self.delivery_callback)
                                     # Attendere la conferma dell'invio
                                     self.p.poll(0)
-
                     else:
                         print("No subscriptions")
                 except BufferError:

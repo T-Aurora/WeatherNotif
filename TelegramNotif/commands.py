@@ -24,7 +24,7 @@ async def alert(update: Update, context: ContextTypes.DEFAULT_TYPE):
         "Tempmax:value - alert the user when the temp reaches value.\n"
         "Tempmin:value - same as before\n"
         "PSA alerts are not case sensitive\n"
-        "Es. /sub Catania RAIN Tempmax:30 Tempmin:20"
+        "Es. /sub Catania Rain Tempmax:30 Tempmin:20"
     )
     await context.bot.send_message(chat_id=update.effective_chat.id, text=help_text)
 async def sub(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -35,18 +35,19 @@ async def sub(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if len(text_c) <=4:
         if WeatherCall(text_c[0])['cod'] != '404':
             for text in text_c:
-                if 'tempmax' in text.lower():
-                    temp.append(re.findall(r'\d+', text))
+                print("in sub Text city:", text)
+                if 'temp' in text.lower():
+                    temp.append(re.findall('[0-9]+', text))
+                    print("in sub temp",temp)
                 if 'rain' in text.lower():
                     rain = True
                 await context.bot.send_message(chat_id=update.effective_chat.id, text="your sub: "+text)
                 content += str(text)+'\n'
-            print(update.effective_user.full_name)
-            print(update.effective_chat.id)
-            print(content)
+            print("in sub full name",update.effective_user.full_name)
+            print("in sub chat.id",update.effective_chat.id)
+            print("in sub full name",content)
 
             # region
-
             url = 'http://wnotif:5000/add_user'
             data = {
                 'nome': update.effective_user.full_name,
@@ -54,27 +55,27 @@ async def sub(update: Update, context: ContextTypes.DEFAULT_TYPE):
             }
             response = requests.post(url, data=data)
             if response.status_code == 200:
-                print('gg funza')
+                print('status==200')
             else:
-                print('Error info for add:', response.status_code, response.text)
+                print('Error info for add:', response.status_code)
+                # print('Error info for add:', response.status_code, response.text)
 
             #2'endpoit
 
             user_id = requests.post('http://wnotif:5000/find_user', data=data)
             t=re.findall(r'\d+',str(user_id.text))
             sub_data = {
-                'user_id': t, #sicuro sbaglio
-                'locazione': text_c[0],  #continuo a consider 0 la citta come su check
+                'user_id': t,
+                'locazione': text_c[0],
                 't_max': (max(temp)) if temp else None,
                 't_min': (min(temp)) if temp else None,
-                'w_condition': 'rain' if rain else None #in caso metterne altri
+                'w_condition': 'rain' if rain else None
             }
             for key, value in sub_data.items():
                 if value == '':
                  sub_data[key] = None
 
             sub_response = requests.post('http://wnotif:5000/add_subb', data=sub_data)
-
             if sub_response.status_code == 200:
                 print('Subscription added')
             else:
@@ -82,11 +83,7 @@ async def sub(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             # endregion
             print(str(max(temp)) + " " + str(min(temp)))
-
-
             #key = 'WeatherSubscription from user: '+update.effective_user.full_name
-
-            print(str(max(temp))+" "+str(min(temp)))
 
         else:
             await context.bot.send_message(chat_id=update.effective_chat.id, text="city not found!")
@@ -107,7 +104,7 @@ async def show_sub(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if subscriptions:
             message = "Your subscriptions:\n"
             for sub in subscriptions:
-                message += f"- {sub['locazione']}: {sub['t_min']} - {sub['t_max']} - {sub['w_condition']}\n"
+                message += f"- {sub['locazione']}: min: {sub['t_min']} - max: {sub['t_max']} - Condition: {sub['w_condition']}\n"
         else:
             message = "You have no subscriptions."
     else:
@@ -117,5 +114,4 @@ async def show_sub(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def unknown(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, I didn't understand that command.")
-#async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE):
-#   await context.bot.send_message(chat_id=update.effective_chat.id, text=update.message.text)
+

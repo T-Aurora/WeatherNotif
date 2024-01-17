@@ -1,5 +1,7 @@
 import json
 import logging
+import os
+
 from flask import Flask, request, redirect, url_for,Response
 import SQLAlchemySingleton
 from WNotif_app import models
@@ -7,7 +9,7 @@ from pproducer import ProducerW
 import threading
 def create_app():
     app = Flask(__name__)
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://wnotif:wnotif@weatherdb/wdb'
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://wnotif:wnotif@'+os.getenv('MYSQLHOST','localhost:3306')+'/wdb'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     models.db.init_app(app)
     producer = ProducerW(app)
@@ -29,10 +31,9 @@ def create_app():
                 request.form['nome'],
                 request.form['chat_id']
             )
-            #chat_id gia presente
             ex_user = models.User.query.filter_by(chat_id=chat_id).first()
             if ex_user:
-                print("!!!!Chat ID already exists.!!!!") #gestire con excep
+                print("Chat ID already exists")
                 # mysql.connector.errors.IntegrityError: 1062 (23000): Duplicate entry '275927520' for key 'user.chat_id'
             else:
                 #end
@@ -78,9 +79,9 @@ def create_app():
             t_min = int(t_min) if t_min is not None and t_min.isdigit() else None
             w_condition = w_condition if w_condition else None
 
-            print("Received data:")
+            print("Received data in add_sub")
             print(f"user_id: {user}")
-            print(f"locazione: {locazione}")
+            print(f"city: {locazione}")
             print(f"t_max: {t_max}")
             print(f"t_min: {t_min}")
             print(f"w_condition: {w_condition}")
@@ -88,6 +89,7 @@ def create_app():
             new_subb=models.Subscription(user_id=user, locazione=locazione,t_max=t_max,t_min=t_min, w_condition=w_condition)
             models.db.session.add(new_subb)
             models.db.session.commit()
+
             return "Subscription added for user with ID: "+str(user)
 
     # endregion
@@ -110,10 +112,17 @@ def create_app():
                 })
 
             json_subs_data = json.dumps(subs_data)
-
                 # Restituisci la risposta JSON
             return json_subs_data, 200, {'Content-Type': 'application/json'}
 
-
+    @app.route('/all_sub', methods=['GET'])
+    def all_sub():
+        if request.method == 'GET':
+            def generate_subs():
+                with app.app_context():
+                    all_subs = models.Subscription.query.all()
+                    for subs in all_subs:
+                        yield 'SubId: '+str(subs.id)+ ' user_id: '+str(subs.user_id)+' city: '+str(subs.locazione)+' t_max: '+str(subs.t_max)+ ' t_min: '+str(subs.t_min)+' w_condition: '+ str(subs.w_condition)+'\n'
+            return Response(generate_subs(), content_type='text/plain')
 
     return app
