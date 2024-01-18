@@ -4,8 +4,16 @@ from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 from ApiHandler import WeatherCall
 import re
 import requests
+from main import user_link
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="Welcome to WeatherNotify, type /help for assistance.")
+    check= user_link.link_user(update.effective_user.username,update.effective_user.id)
+    if check== "200":
+        print("User linked: "+update.effective_user.username+" "+str(update.effective_user.id))
+    else:
+        print("User already linked")
+
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="Welcome"+update.effective_user.username+" to WeatherNotify, type /help for assistance.")
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     help_text = (
         "This bot can help you with the following commands:\n"
@@ -51,7 +59,7 @@ async def sub(update: Update, context: ContextTypes.DEFAULT_TYPE):
             url = 'http://wnotif:5000/add_user'
             data = {
                 'nome': update.effective_user.full_name,
-                'chat_id': update.effective_chat.id,
+                'username': update.message.from_user.username,
             }
             response = requests.post(url, data=data)
             if response.status_code == 200:

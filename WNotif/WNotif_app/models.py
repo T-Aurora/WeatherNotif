@@ -5,7 +5,8 @@ class User(db.Model):
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     nome = db.Column(db.String(80))
-    chat_id = db.Column(db.String(10),unique=True, nullable=False) #da togliere
+    username = db.Column(db.String(80),nullable=False,unique=True)
+    sub = db.relationship("Subscription", back_populates="user")
 
 #class Costraints(db.Model):
     #__tablename__ = 'constraints'
@@ -26,4 +27,5 @@ class Subscription(db.Model):
     t_max = db.Column(db.Integer, nullable = True)
     t_min = db.Column(db.Integer, nullable = True)
     w_condition = db.Column(db.String(80), nullable = True)
+    user = db.relationship("User", back_populates="sub")
 

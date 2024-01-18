@@ -5,21 +5,19 @@ import os
 from flask import Flask, request, redirect, url_for,Response
 import SQLAlchemySingleton
 from WNotif_app import models
-from pproducer import ProducerW
 import threading
 def create_app():
     app = Flask(__name__)
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://wnotif:wnotif@'+os.getenv('MYSQLHOST','localhost:3306')+'/wdb'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     models.db.init_app(app)
-    producer = ProducerW(app)
     with app.app_context():
         models.db.create_all()
-        try:
-            thread = threading.Thread(target=producer.produce_weather_message, args=(app,))
-            thread.start()
-        except Exception as e:
-            logging.error(f"Error producing weather message: {e}")
+        #try:
+            #thread = threading.Thread(target=producer.produce_weather_message, args=(app,))
+            #thread.start()
+        #except Exception as e:
+         #   logging.error(f"Error producing weather message: {e}")
     @app.route('/')
     def hello():
         return 'Welcome to WeatherNotif!'
@@ -27,19 +25,17 @@ def create_app():
     @app.route('/add_user', methods=['POST'])
     def adduser():
         if request.method == 'POST':
-            nome, chat_id = (
-                request.form['nome'],
-                request.form['chat_id']
-            )
-            ex_user = models.User.query.filter_by(chat_id=chat_id).first()
-            if ex_user:
-                print("Chat ID already exists")
-                # mysql.connector.errors.IntegrityError: 1062 (23000): Duplicate entry '275927520' for key 'user.chat_id'
-            else:
-                #end
-                new_user = models.User(nome=nome, chat_id=chat_id)
-                models.db.session.add(new_user)
-                models.db.session.commit()
+            nome = request.form['nome']
+            if request.form['username']:
+                username = request.form['username']
+                ex_user = models.User.query.filter_by(username=username).first()
+                if ex_user:
+                    print("User already exists")
+                    return "User already present"
+                else:
+                    new_user = models.User(nome=nome, username=username)
+                    models.db.session.add(new_user)
+                    models.db.session.commit()
 
                 return "User: "+nome+" committed"
 
@@ -120,9 +116,9 @@ def create_app():
         if request.method == 'GET':
             def generate_subs():
                 with app.app_context():
-                    all_subs = models.Subscription.query.all()
-                    for subs in all_subs:
-                        yield 'SubId: '+str(subs.id)+ ' user_id: '+str(subs.user_id)+' city: '+str(subs.locazione)+' t_max: '+str(subs.t_max)+ ' t_min: '+str(subs.t_min)+' w_condition: '+ str(subs.w_condition)+'\n'
+                    all_subs = models.db.session.query(models.Subscription,models.User).join(models.User).where(models.Subscription.user_id == models.User.id).all()
+                    for subs, users in all_subs:
+                        yield 'subId:'+str(subs.id)+ ' user_id:'+str(subs.user_id)+' username:'+users.username+' city:'+str(subs.locazione)+' t_max:'+str(subs.t_max)+ ' t_min:'+str(subs.t_min)+' w_condition:'+ str(subs.w_condition)+'\n'
             return Response(generate_subs(), content_type='text/plain')
 
     return app

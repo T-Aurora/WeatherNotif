@@ -8,8 +8,8 @@ class WConsumer:
     def __init__(self, token_bot, bootstrap_server, group_id):
         self.token_bot = token_bot
 
-        self.kafka_consumer = Consumer({'bootstrap.servers': 'kafka:29092',
-                                            'group.id': os.getenv('GROUP_ID', '1'),
+        self.kafka_consumer = Consumer({'bootstrap.servers': bootstrap_server,
+                                            'group.id': os.getenv('GROUP_ID', 1),
                                             'enable.auto.commit': 'true',
                                             'auto.offset.reset': 'latest'  # 'auto.offset.reset=earliest' to start reading from the beginning
                                             })

@@ -1,6 +1,8 @@
 """"6901556645:AAEqTL9k2TeoIosTx9i8li_ItVZpvUqtb3E
 Keep your token secure """
 import logging
+import os
+
 from telegram.ext import ApplicationBuilder, ContextTypes,JobQueue, CommandHandler, MessageHandler, CallbackQueryHandler, filters, ConversationHandler
 import commands
 import threading
@@ -8,12 +10,15 @@ import requests
 from aiohttp import web
 import asyncio
 from consumer import WConsumer
+from UserLinker import RedisLink
 token = '6901556645:AAEqTL9k2TeoIosTx9i8li_ItVZpvUqtb3E'
 logging.basicConfig( #modulo di logging per error checking
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
-c = WConsumer()
+c = WConsumer(token,os.getenv('KAFKAHOST','localhost:29092'),1)
+user_link= RedisLink(os.getenv('REDIS_HOST','localhost'),os.getenv('REDIS_PORT','6379'),os.getenv('REDIS_DB','1'))
+
 async def k_consumer_job(job_queue):
     await c.k_consumer()
 def main():
