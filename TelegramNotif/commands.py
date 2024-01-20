@@ -1,19 +1,21 @@
 import logging
+import os
 from telegram import Update
 from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
 from ApiHandler import WeatherCall
 import re
 import requests
-from main import user_link
+from UserLinker import RedisLink
 
+user_link = RedisLink(os.getenv('REDIS_HOST','localhost'),os.getenv('REDIS_PORT','6379'),os.getenv('REDIS_DB','1'))
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    check= user_link.link_user(update.effective_user.username,update.effective_user.id)
-    if check== "200":
+    check = user_link.link_user(update.effective_user.username,update.effective_user.id)
+    if check == 200:
         print("User linked: "+update.effective_user.username+" "+str(update.effective_user.id))
     else:
         print("User already linked")
 
-    await context.bot.send_message(chat_id=update.effective_chat.id, text="Welcome"+update.effective_user.username+" to WeatherNotify, type /help for assistance.")
+    await context.bot.send_message(chat_id=update.effective_chat.id, text="Welcome "+update.effective_user.username+" to WeatherNotify, type /help for assistance.")
 async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
     help_text = (
         "This bot can help you with the following commands:\n"
@@ -54,9 +56,8 @@ async def sub(update: Update, context: ContextTypes.DEFAULT_TYPE):
             print("in sub full name",update.effective_user.full_name)
             print("in sub chat.id",update.effective_chat.id)
             print("in sub full name",content)
-
             # region
-            url = 'http://wnotif:5000/add_user'
+            url = 'http://'+os.getenv('APIHOST','localhost')+':5000/add_user'
             data = {
                 'nome': update.effective_user.full_name,
                 'username': update.message.from_user.username,
@@ -69,8 +70,8 @@ async def sub(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 # print('Error info for add:', response.status_code, response.text)
 
             #2'endpoit
-
-            user_id = requests.post('http://wnotif:5000/find_user', data=data)
+            url = 'http://'+os.getenv('APIHOST','localhost')+':5000/find_user'
+            user_id = requests.post(url, data=data)
             t=re.findall(r'\d+',str(user_id.text))
             sub_data = {
                 'user_id': t,
@@ -82,8 +83,8 @@ async def sub(update: Update, context: ContextTypes.DEFAULT_TYPE):
             for key, value in sub_data.items():
                 if value == '':
                  sub_data[key] = None
-
-            sub_response = requests.post('http://wnotif:5000/add_subb', data=sub_data)
+            url = 'http://'+os.getenv('APIHOST','localhost')+':5000/add_subb'
+            sub_response = requests.post(url, data=sub_data)
             if sub_response.status_code == 200:
                 print('Subscription added')
             else:
@@ -103,10 +104,10 @@ async def sub(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 async def show_sub(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    chat_id = update.effective_chat.id
+    chat_id = update.effective_chat.username
     print(chat_id)
-    sub_response = requests.post('http://wnotif:5000/show_sub', data={'chat_id': chat_id})
-
+    url = 'http://'+os.getenv('APIHOST','localhost')+':5000/show_sub'
+    sub_response = requests.post(url, data={'username': chat_id})
     if sub_response.status_code == 200:
         subscriptions = sub_response.json()
         if subscriptions:

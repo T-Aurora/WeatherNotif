@@ -8,7 +8,10 @@ class RedisLink:
     def link_user(self,username,id):
         cached_data = self.redis_client.get(username)
         if cached_data:
-            return "500"
+            return 500
         else:
             self.redis_client.set(username,id)
-            return "200"
+            return 200
+
+    def find_user(self,username):
+        return self.redis_client.get(username)

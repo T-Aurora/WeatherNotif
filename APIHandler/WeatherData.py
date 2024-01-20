@@ -7,5 +7,5 @@ def fetch_weather_data(city):
     if response.status_code == 200:
         return response.json()
     else:
-        print("City not found")
+        print("City not found", response.status_code)
         return None

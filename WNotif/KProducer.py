@@ -25,26 +25,19 @@ class KProducer:
 
         # p.produce(topic, key=record_key, value=record_value, callback=delivery_callback)
 
-""" def produce_weather_message(self,app,sub):
-     with app.app_context(): 
-         print("Sub for weather_d", sub_weather_data)
-         user = models.User.query.join(models.Subscription).where(sub.user_id == models.User.id).first()
-         print("Username: ",user.username)
-         msg_data={
-             'city':sub_city,
-             'username': user.chat_id
-         }
-         record_value = json.dumps(msg_data)
-         print("Stampo record_value", record_value)
-         # Pubb il messaggio sul topic
-         topic = 'WAlerts'
-         self.p.produce(topic, key=chat_id.chat_id, value=record_value, callback=self.delivery_callback)
-         # Attendere la conferma dell'invio
-         self.p.poll(0)
-                 else:
-                 print("No subscriptions")
-         except BufferError:
-         sys.stderr.write('%% Local producer queue is full: try again\n')
-     except Exception as e:
-     print(f"Exception in produce_weather_message: {e}")
-     print("End of produce_weather_message") """
+    def produce(self, app, data,topic):
+        with app.app_context():
+            print("Sub for weather_d", data)
+            try:# 0 dopo no? no prima, vediamo se printa almeno l'username
+                user = models.User.query.where(data["user_id"] == models.User.id).first()#credo forse data non ci arriva come json ma come stringa proprio
+                print("Username: ",user.username)
+                # Pubb il messaggio sul topic
+                try:
+                    self.p.produce(topic, key=data["city"], value=data, callback=self.delivery_callback)
+                    # Attendere la conferma dell'invio
+                    self.p.poll(0)
+                except BufferError:
+                    sys.stderr.write('%% Local producer queue is full: try again\n')
+            except Exception as e:
+                print(f"Exception in produce_weather_message: {e}")
+                print("End of produce_weather_message")

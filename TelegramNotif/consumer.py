@@ -4,6 +4,9 @@ from venv import logger
 from confluent_kafka import Consumer, KafkaError
 import json
 from telegram import Update, Bot
+from UserLinker import RedisLink
+
+user_link = RedisLink(os.getenv('REDIS_HOST','localhost'),os.getenv('REDIS_PORT','6379'),os.getenv('REDIS_DB','1'))
 class WConsumer:
     def __init__(self, token_bot, bootstrap_server, group_id):
         self.token_bot = token_bot
@@ -20,7 +23,7 @@ class WConsumer:
 
     async def k_consumer(self):
         try:
-                msg = self.c.poll(timeout=15)
+                msg = self.kafka_consumer.poll(timeout=15)
                 if msg is None:
                     print("Waiting for message or event/error in poll()")
                     #continue
@@ -34,9 +37,9 @@ class WConsumer:
                         print('error: {}'.format(msg.error()))
                 else:
                     # Check for Kafka message
-                    chat_id = msg.key()
                     record_value = msg.value()
                     data = json.loads(record_value)
+                    chat_id = user_link.find_user(data['username'])
                     cont = ''
                     #da es se la chiave 'count' non è presente nei dati, restituisce 0 come valore predefinito
                     # Invia una risposta al bot
@@ -61,7 +64,7 @@ class WConsumer:
                         print(f"Fail: {e}")
 
         except KeyboardInterrupt:
-            self.c.close()
+            self.kafka_consumer.close()
         finally:
             pass
             #self.c.close()

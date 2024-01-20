@@ -1,17 +1,11 @@
 import os
-
 from confluent_kafka import Consumer
 import json
 from time import sleep
 from KProducer import KProducer
+import time
 
-MIN_COMMIT_COUNT = 4
 class KExchange:
-    def commit_completed(err, partitions):
-        if err:
-            print(str(err))
-        else:
-            print("Committed partition offsets: " + str(partitions))
     def __init__(self,topic):
         self.c = Consumer({'bootstrap.servers': 'localhost:29092',
                       'group.id': 1,
@@ -21,10 +15,10 @@ class KExchange:
         self.c.subscribe([topic])
         self.producer = KProducer(os.getenv('KAFKAHOST','localhost:29092'))
 
-    def consume(self):
+    def ConsumeandProduce(self,app):
         try:
             while True:
-                msg = self.c.poll(timeout=5.0)
+                msg = self.c.poll(timeout=10.0)
                 if msg is None:
                     print("Waiting for message or event/error in poll()")
                     continue
@@ -35,10 +29,11 @@ class KExchange:
                     record_key = msg.key()
                     record_value = msg.value()
                     data = json.loads(record_value)
-                    count = data['count']
-                    print("Consumed record with key {} and value {}".format(record_key, record_value))
+                    print(data)
+                    print("Consumed record with key {} and value {}".format(record_key, data))
                     #produce message al topic WAlerts con i dati presi, creare funziona su KProducer, inviare dati "baked"
-
+                    self.producer.produce(app,data,'WAlerts')
+                time.sleep(30)
         except KeyboardInterrupt:
             pass
         finally:

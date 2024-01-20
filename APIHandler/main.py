@@ -9,7 +9,9 @@ def main():
     weather_p=WeatherProducer(host=os.getenv('KAFKAHOST','localhost:29092'))
     k_producer=weather_p.create_producer()
     while True:
-        weather_p.send_data(producer=k_producer, topic='BakedData',data=process_subs(redis))
+        data = process_subs(redis)
+        if data:
+            weather_p.send_data(producer=k_producer, topic='BakedData',data=data)
         time.sleep(60)
 
 if __name__=="__main__":
