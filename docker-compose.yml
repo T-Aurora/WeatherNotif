@@ -5,11 +5,17 @@ services:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
       ZOOKEEPER_TICK_TIME: 2000
+    healthcheck:
+      test: [ "CMD", "echo", "ruok", "|", "nc", "localhost", "2181", "|", "grep", "imok" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   kafka:
     image: confluentinc/cp-kafka:latest
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_healthy
     ports:
       - "29092:29092"
     environment:
@@ -38,7 +44,67 @@ services:
     ports:
       - "6379:6379"
     volumes:
-      - ./redis-data:/data
+      - redis_data:/var/lib/redis
+
+  wnotif:
+    build: ./WNotif
+    depends_on:
+      weatherdb:
+        condition: service_started
+      redis:
+        condition: service_started
+      kafka:
+        condition: service_started
+    ports:
+      - "5000:5000"
+    environment:
+      MYSQLHOST: "weatherdb"
+      KAFKAHOST: "kafka:9092"
+    restart: on-failure
+
+  tgramnotif:
+    build: ./TelegramNotif
+    depends_on:
+      weatherdb:
+        condition: service_started
+      redis:
+        condition: service_started
+      kafka:
+        condition: service_started
+      wnotif:
+        condition: service_started
+    ports:
+      - "8540:8540"
+    environment:
+      KAFKAHOST: "kafka:9092"
+      REDIS_HOST: "redis"
+      REDIS_PORT: "6379"
+      REDIS_DB: "1"
+      APIHOST: "wnotif"
+    restart: on-failure
+
+  apihandler:
+    build: ./APIHandler
+    depends_on:
+      weatherdb:
+        condition: service_started
+      redis:
+        condition: service_started
+      kafka:
+        condition: service_started
+      wnotif:
+        condition: service_started
+    ports:
+      - "12040:12040"
+    environment:
+      KAFKAHOST: "kafka:9092"
+      REDIS_HOST: "redis"
+      REDIS_PORT: "6379"
+      REDIS_DB: "0"
+      APIHOST: "wnotif"
+    restart: on-failure
+
 volumes:
   db_data:
+  redis_data:
 

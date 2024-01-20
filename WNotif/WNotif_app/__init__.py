@@ -101,7 +101,7 @@ def create_app():
             #chat = request.form.get('chat_id')
             #subscriptions = models.Subscription.query.join(models.User).where(models.Subscription.user_id == models.User.id).filter(models.User.chat_id == chat).all()
             username = request.form.get('username')
-            user = models.User.query.filter_by(username=username).first() #funziona
+            user = models.User.query.filter_by(username=username).first()
             if user:
                 subscriptions = models.Subscription.query.filter_by(user_id=user.id).all()
                 #subscriptions = user.subscriptions
@@ -129,11 +129,10 @@ def create_app():
             all_subs = models.db.session.query(models.Subscription, models.User).join(models.User).where(models.Subscription.user_id == models.User.id).all()
             # def generate_subs():
             # with app.app_context():
-            # bisogna comunque fare un check se all subs è riempito qua
+            subs_data = {}
             if all_subs:
-                subs_data = []
                 for subs, users in all_subs: #yield 'subId:'+str(subs.id)+ ' user_id:'+str(subs.user_id)+' username:'+users.username+' city:'+str(subs.locazione)+' t_max:'+str(subs.t_max)+ ' t_min:'+str(subs.t_min)+' w_condition:'+ str(subs.w_condition)+'\n'
-                 sub_data = {
+                 subs_data[subs.id] = {
                     'subId': subs.id,
                     'user_id': subs.user_id,
                     'username': users.username,
@@ -142,7 +141,6 @@ def create_app():
                     't_min': subs.t_min,
                     'w_condition': subs.w_condition
                  }
-                subs_data.append(sub_data)
             return jsonify(subs_data)
         else:
             print('No subscription', 404)

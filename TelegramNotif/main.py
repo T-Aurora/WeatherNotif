@@ -2,7 +2,7 @@
 Keep your token secure """
 import logging
 import os
-
+import time
 from telegram.ext import ApplicationBuilder, ContextTypes,JobQueue, CommandHandler, MessageHandler, CallbackQueryHandler, filters, ConversationHandler
 import commands
 import threading
@@ -38,7 +38,7 @@ def main():
     #application.run_polling()
     job_queue = application.job_queue
     # Aggiungi un job periodico per eseguire il consumatore Kafka
-    job_queue.run_repeating(k_consumer_job, 5)
+    job_queue.run_repeating(k_consumer_job,2)
     # Avvia l'applicazione Telegram
     application.run_polling()
 

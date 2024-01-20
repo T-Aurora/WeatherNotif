@@ -18,6 +18,6 @@ class WeatherProducer:
     def create_producer(self):
         return Producer(self.kafka_config)
 
-    def send_data(self,producer,topic,data):
-        producer.produce(topic, json.dumps(data).encode('utf-8'), callback=self.delivery_callback)
+    def send_data(self,producer,topic,data,key):
+        producer.produce(topic = topic,key = key, value = json.dumps(data).encode('utf-8'), callback=self.delivery_callback)
 
