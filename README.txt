@@ -1,7 +1,7 @@
 # WeatherNotif
 Follow the steps below to start the project and interact with the bot
 To start the project:
--Run the "docker compose up" command to start the project, then you can interact with the Telegram bot
+-Run the "docker compose up" command to start the project, you can then interact with the Telegram bot
 Starting the bot:
 -Open Telegram and search for the bot "WeatherNotif"
 -Start the bot by selecting the icon and pressing "Start."
@@ -14,9 +14,10 @@ Once the bot is started, you can use the following commands:
 To create a subscription, use the /sub command followed by the desired city,rain condition, and maximum and minimum temperatures.
 For example: " /sub Catania Rain Tempmax:30 Tempmin:20 "
 Rain - alert the user when it's gonna rain
-Tempmax:value - alert the user when the temp reaches value.
-Tempmin:value - same as before
+Tempmax:value - alert the user when the temp reaches or surpass the specified value.
+Tempmin:value - same logic as before considering a minimum temperature.
 
 PSA: alerts are not case sensitive"
 Receiving Notifications
 After creating a subscription, wait approximately 3 minutes to receive the notification message related to your request
+
