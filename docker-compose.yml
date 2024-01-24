@@ -47,7 +47,7 @@ services:
       - redis_data:/var/lib/redis
 
   wnotif:
-    build: ./WNotif
+    build: ./UserManager
     depends_on:
       weatherdb:
         condition: service_started
@@ -84,7 +84,7 @@ services:
     restart: on-failure
 
   apihandler:
-    build: ./APIHandler
+    build: ./MeteoRetrieval
     depends_on:
       weatherdb:
         condition: service_started

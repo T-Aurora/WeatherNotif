@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/APIHandler/APIHandler.iml" filepath="$PROJECT_DIR$/APIHandler/APIHandler.iml" />
+      <module fileurl="file://$PROJECT_DIR$/MeteoRetrieval/MeteoRetrieval.iml" filepath="$PROJECT_DIR$/MeteoRetrieval/MeteoRetrieval.iml" />
       <module fileurl="file://$PROJECT_DIR$/TelegramNotif/TelegramNotif.iml" filepath="$PROJECT_DIR$/TelegramNotif/TelegramNotif.iml" />
-      <module fileurl="file://$PROJECT_DIR$/WNotif/WNotif.iml" filepath="$PROJECT_DIR$/WNotif/WNotif.iml" />
+      <module fileurl="file://$PROJECT_DIR$/UserManager/UserManager.iml" filepath="$PROJECT_DIR$/UserManager/UserManager.iml" />
       <module fileurl="file://$PROJECT_DIR$/WeatherNotif.iml" filepath="$PROJECT_DIR$/WeatherNotif.iml" />
     </modules>
   </component>

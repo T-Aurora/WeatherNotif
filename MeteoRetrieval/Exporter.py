@@ -5,7 +5,6 @@ import time
 import prometheus_client
 from prometheus_client import Counter
 
-
 class Exporter:
     cache_hit_counter = Counter('cache_hits', 'Cache Hit Count',['city'])
     cache_miss_counter = Counter('cache_misses', 'Cache Miss Count',['city'])
