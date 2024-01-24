@@ -104,7 +104,18 @@ services:
       APIHOST: "wnotif"
     restart: on-failure
 
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.enable-lifecycle'
+    ports:
+      - 9090:9090
+    restart: unless-stopped
+
 volumes:
   db_data:
   redis_data:
-

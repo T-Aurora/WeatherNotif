@@ -3,6 +3,9 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.10 (WNotif)" />
   </component>
+  <component name="JavadocGenerationManager">
+    <option name="OUTPUT_DIRECTORY" value="$USER_HOME$/Scaricati" />
+  </component>
   <component name="ProjectRootManager">
     <output url="file://$PROJECT_DIR$/out" />
   </component>
