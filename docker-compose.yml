@@ -46,7 +46,7 @@ services:
     volumes:
       - redis_data:/var/lib/redis
 
-  wnotif:
+  usermanager:
     build: ./UserManager
     depends_on:
       weatherdb:
@@ -71,7 +71,7 @@ services:
         condition: service_started
       kafka:
         condition: service_started
-      wnotif:
+      usermanager:
         condition: service_started
     ports:
       - "8540:8540"
@@ -80,10 +80,10 @@ services:
       REDIS_HOST: "redis"
       REDIS_PORT: "6379"
       REDIS_DB: "1"
-      APIHOST: "wnotif"
+      APIHOST: "usermanager"
     restart: on-failure
 
-  apihandler:
+  meteoretrieval:
     build: ./MeteoRetrieval
     depends_on:
       weatherdb:
@@ -92,7 +92,7 @@ services:
         condition: service_started
       kafka:
         condition: service_started
-      wnotif:
+      usermanager:
         condition: service_started
     ports:
       - "12040:12040"
@@ -101,7 +101,7 @@ services:
       REDIS_HOST: "redis"
       REDIS_PORT: "6379"
       REDIS_DB: "0"
-      APIHOST: "wnotif"
+      APIHOST: "usermanager"
     restart: on-failure
 
   prometheus:
@@ -115,6 +115,18 @@ services:
     ports:
       - 9090:9090
     restart: unless-stopped
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: cadvisor
+    ports:
+      - 8080:8080
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+
 
 volumes:
   db_data:
