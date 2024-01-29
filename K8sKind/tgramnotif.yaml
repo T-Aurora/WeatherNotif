@@ -1,0 +1,45 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tgramnotif
+spec:
+  selector:
+    app: tgramnotif
+  ports:
+    - port: 8540
+      targetPort: 8540
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: tgramnotif
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: tgramnotif
+  template:
+    metadata:
+      labels:
+        app: tgramnotif
+    spec:
+      nodeSelector:
+        custom-label: "worker"
+      containers:
+      - name: tgramnotif
+        image: tgramnotif
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8540
+        env:
+          - name: KAFKAHOST
+            value: "kafka:29092"
+          - name: REDIS_HOST
+            value: "redis"
+          - name: REDIS_PORT
+            value: "6379"
+          - name: REDIS_DB
+            value: "1"
+          - name: APIHOST
+            value: "usermanager"
+      restartPolicy: Always
