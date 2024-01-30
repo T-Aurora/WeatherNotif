@@ -21,3 +21,16 @@ PSA: alerts are not case sensitive"
 Receiving Notifications
 After creating a subscription, wait approximately 3 minutes to receive the notification message related to your request
 
+To deploy the application on Kubernetes:
+
+-Create a new kind cluster using the YAML configuration file.
+    kind create cluster --name wnotif --config kind-config.yaml
+-Load Docker images (usermanager, tgramnotif, meteoretrieval) into the cluster.
+    kind load docker-image usermanager
+-Apply the manifests to the cluster.
+    sudo kubectl apply -f kafka-all-in-one.yaml
+-Create Kafka topics.
+kafkacli/kafka_2.13-3.6.1$ sudo bin/kafka-topics.sh --create --topic WAlerts --bootstrap-server localhost:9092
+			  sudo bin/kafka-topics.sh --create --topic BakedData --bootstrap-server localhost:9092
+-Apply the manifests to the cluster (redis, mysql, usermanager, tgramnotif, meteoretrieval).
+    sudo kubectl apply -f nome-del-file.yaml
