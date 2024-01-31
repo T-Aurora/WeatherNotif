@@ -55,16 +55,17 @@ class WConsumer:
                     if "rain" in data:
                         cont += str(data['rain'])+'\n'
                     #con user_id togliere chat_id
-                    chat_id_str = chat_id.decode('utf-8')
-                    logging.info("Consumed record with key {} and value {}".format(chat_id_str, record_value))
-                    response_message = "Your info on {} are:\n{}".format(data['city'], cont)
-                    print(f"Sending message to chat_id {chat_id_str}: {response_message}")
-                    try:
-                        await self.bot.send_message(chat_id=chat_id_str, text=response_message)
-                        logger.info(f"Message sent to chat_id {chat_id_str}: {response_message}")
-                    except Exception as e:
-                        logger.error(f"Failed to send message to chat_id {chat_id}: {e}")
-                        print(f"Fail: {e}")
+                    if chat_id:
+                        chat_id_str = chat_id.decode('utf-8')
+                        logging.info("Consumed record with key {} and value {}".format(chat_id_str, record_value))
+                        response_message = "Your info on {} are:\n{}".format(data['city'], cont)
+                        print(f"Sending message to chat_id {chat_id_str}: {response_message}")
+                        try:
+                            await self.bot.send_message(chat_id=chat_id_str, text=response_message)
+                            logger.info(f"Message sent to chat_id {chat_id_str}: {response_message}")
+                        except Exception as e:
+                            logger.error(f"Failed to send message to chat_id {chat_id}: {e}")
+                            print(f"Fail: {e}")
 
         except KeyboardInterrupt:
             self.kafka_consumer.close()

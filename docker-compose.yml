@@ -39,6 +39,18 @@ services:
     volumes:
       - db_data:/var/lib/mysql
 
+  metricsdb:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: sla
+      MYSQL_USER: wnotif
+      MYSQL_PASSWORD: wnotif
+    ports:
+      - "5509:3306"
+    volumes:
+      - db_data2:/var/lib/metrics
+
   redis:
     image: redis
     ports:
@@ -116,6 +128,17 @@ services:
       - 9090:9090
     restart: unless-stopped
 
+  slamanager:
+    build: ./SLAManager
+    depends_on:
+      metricsdb:
+        condition: service_started
+    ports:
+      - "6000:6000"
+    environment:
+      MYSQLHOST: "metricsdb"
+    restart: on-failure
+
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:latest
     container_name: cadvisor
@@ -127,7 +150,7 @@ services:
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
 
-
 volumes:
   db_data:
+  db_data2:
   redis_data:
